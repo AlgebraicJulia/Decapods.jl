@@ -34,7 +34,7 @@ Point3D = Point3{Float64}; # hide
 The ice thickness data is [stored in a TIF](https://zenodo.org/api/records/7735970/files-archive). We have downloaded it locally, and load it using basic `FileIO`.
 
 ``` @example DEC
-file_name = "Icethickness_Grigoriev_ice_cap_2021.tif"
+file_name = "../../assets/Icethickness_Grigoriev_ice_cap_2021.tif"
 ice_thickness_tif = load(file_name)
 ```
 
@@ -112,7 +112,7 @@ halfar_eq2 = @decapode begin
   n::Constant
 
   ḣ == ∂ₜ(h)
-  ḣ == ∘(⋆, d, ⋆)(Γ * d(h) * avg₀₁(mag(♯(d(h)))^(n-1)) * avg₀₁(h^(n+2)))
+  ḣ == ∘(⋆, d, ⋆)(Γ * d(h) ∧ (mag(♯(d(h)))^(n-1)) ∧ (h^(n+2)))
 end
 
 glens_law = @decapode begin
@@ -138,36 +138,15 @@ to_graphviz(ice_dynamics)
 # Define our functions
 
 ``` @example DEC
-include("sharp_op.jl")
 function generate(sd, my_symbol; hodge=GeometricHodge())
-  ♯_m = ♯_mat(sd)
-  I = Vector{Int64}()
-  J = Vector{Int64}()
-  V = Vector{Float64}()
-  for e in 1:ne(s)
-      append!(J, [s[e,:∂v0],s[e,:∂v1]])
-      append!(I, [e,e])
-      append!(V, [0.5, 0.5])
-  end
-  avg_mat = sparse(I,J,V)
   op = @match my_symbol begin
-    :♯ => x -> begin
-      ♯(sd, EForm(x))
-    end
     :mag => x -> begin
       norm.(x)
     end
-    :avg₀₁ => x -> begin
-      avg_mat * x
+    :^ => (x,y) -> begin
+      x .^ y
     end
-    :^ => (x,y) -> x .^ y
-    :* => (x,y) -> x .* y
-    :abs => x -> abs.(x)
-    :show => x -> begin
-      println(x)
-      x
-    end
-    x => error("Unmatched operator $my_symbol")
+    _ => default_dec_matrix_generate(sd, my_symbol, hodge)
   end
   return (args...) -> op(args...)
 end
