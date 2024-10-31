@@ -587,13 +587,8 @@ end
 A combined `infer_types` and `resolve_overloads` pipeline with default DEC rules.
 """
 function infer_overload_compiler!(d::SummationDecapode, dimension::Int)
-  if dimension == 1
-    infer_types!(d, op1_inf_rules_1D, op2_inf_rules_1D)
-    resolve_overloads!(d, op1_res_rules_1D, op2_res_rules_1D)
-  elseif dimension == 2
-    infer_types!(d, op1_inf_rules_2D, op2_inf_rules_2D)
-    resolve_overloads!(d, op1_res_rules_2D, op2_res_rules_2D)
-  end
+    infer_types!(d, dim = dimension)
+    resolve_overloads!(d, dim = dimension)
 end
 
 """
@@ -681,12 +676,12 @@ Base.showerror(io::IO, e::UnsupportedStateeltypeException) = print(io, "Decapode
 """
     gensim(user_d::SummationDecapode, input_vars::Vector{Symbol}; dimension::Int=2, stateeltype::DataType = Float64, code_target::AbstractGenerationTarget = CPUTarget(), preallocate::Bool = true)
 
-Generates the entire code body for the simulation function. The returned simulation function can then be combined with a mesh, provided by `CombinatorialSpaces`, and a function describing symbol 
+Generates the entire code body for the simulation function. The returned simulation function can then be combined with a mesh, provided by `CombinatorialSpaces`, and a function describing symbol
 to operator mappings to return a simulator that can be used to solve the represented equations given initial conditions.
-  
+
 **Arguments:**
-  
-`user_d`: The user passed Decapode for which simulation code will be generated. (This is not modified) 
+
+`user_d`: The user passed Decapode for which simulation code will be generated. (This is not modified)
 
 `input_vars` is the collection of variables whose values are known at the beginning of the simulation. (Defaults to all state variables and literals in the Decapode)
 
