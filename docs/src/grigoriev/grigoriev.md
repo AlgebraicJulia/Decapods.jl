@@ -150,8 +150,8 @@ to_graphviz(ice_dynamics)
 ``` @example DEC
 function generate(sd, my_symbol; hodge=GeometricHodge())
   op = @match my_symbol begin
-    :mag => x -> norm.(x)
-    x => error("Unmatched operator $my_symbol")
+    x => default_dec_matrix_generate(sd, x, hodge)
+    _ => error("Unmatched operator $my_symbol")
   end
   return op
 end

@@ -183,8 +183,7 @@ function generate(sd, my_symbol; hodge=GeometricHodge())
         sum([nv*norm(nv)*x[e] for (e,nv) in zip(es,nvs)]) / sum(norm.(nvs))
       end
     end
-    :mag => x -> norm.(x)
-    x => error("Unmatched operator $my_symbol")
+    x => default_dec_generate(sd, my_symbol, hodge)
   end
   return (args...) -> op(args...)
 end
@@ -340,8 +339,7 @@ function generate(sd, my_symbol; hodge=GeometricHodge())
       sharp_mat = ♯_mat(sd, AltPPSharp())
       x -> sharp_mat * x
     end
-    :mag => x -> norm.(x)
-    x => error("Unmatched operator $my_symbol")
+    x => default_dec_generate(sd, my_symbol, hodge)
   end
   return (args...) -> op(args...)
 end
